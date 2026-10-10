@@ -1,0 +1,82 @@
+.lib /foss/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+
+
+* INVX1
+* pins: input VDD VSS output
+
+
+.subckt INVX1 A VDD VSS Y
+xm01 Y A VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=2.4 as=0.72 ad=0.72 ps=5.4 pd=5.4
+xm02 Y A VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.8 as=0.24 ad=0.24 ps=2.2 pd=2.2
+.ends
+
+.subckt MIN_INV A VDD VSS Y
+xm01 Y A VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=1.24 as=0.372 ad=0.372 ps=3.08 pd=3.08
+xm02 Y A VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 as=0.126 ad=0.126 ps=1.44 pd=1.44
+.ends
+
+
+* TRANSMISSION GATE
+*
+* pins:
+* IN OUT VDD VSS CTRL CTRL_B
+*
+* NMOS controlled by CTRL
+* PMOS controlled by CTRL_B
+*===========================================================
+
+.subckt TG IN OUT VDD VSS CTRL CTRL_B
+XM_N OUT CTRL IN VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 as=0.402 ad=0.402 ps=3.28 pd=3.28
+XM_P OUT CTRL_B IN VDD sky130_fd_pr__pfet_01v8 l=0.15 w=1.24 as=0.372 ad=0.372 ps=3.08 pd=3.08
+.ends
+
+.subckt DFF_OUTINV A VDD VSS Y
+
+XM_P Y A VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=3.4 as=1.02 ad=1.02 ps=7.4 pd=7.4
+XM_N Y A VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1 as=0.3 ad=0.3 ps=2.6 pd=2.6
+
+.ends DFF_OUTINV
+
+
+* DFXTP CELL
+* pins: D VDD VSS CLK Q
+
+
+.subckt DFXTP D VDD VSS CLK Q
+XCLKINV CLK VDD VSS CLKB INVX1
+
+* MASTER LATCH
+XI1 D VDD VSS D_bar INVX1
+XTG1 D_bar M VDD VSS CLKB CLK TG
+XI2 M VDD VSS Yint INVX1
+XI3 Yint VDD VSS M_bar MIN_INV
+XTG2 M_bar M VDD VSS CLK CLKB TG
+XTG3 Yint S VDD VSS CLK CLKB TG
+XI5 S VDD VSS X INVX1
+XI6 X VDD VSS S_bar MIN_INV
+XTG4 S_bar S VDD VSS CLKB CLK TG
+XI4 X VDD VSS Q DFF_OUTINV
+.ends DFXTP
+
+* TESTBENCH
+
+VDD vdd 0 DC 1.8
+VD d 0 PULSE(0 1.8 0.5n 20p 20p 2n 4n)
+VCLK clk 0 PULSE(0 1.8 0 20p 20p 1n 2n)
+
+* DFXTP
+XDFT d vdd 0 clk q DFXTP
+Xload q vdd 0 load_out INVX1
+
+.tran 1p 6n
+
+
+.control
+run
+plot V(clk) V(d) V(q)
+meas tran trise TRIG V(q) VAL=0.36 RISE=1 TARG V(q) VAL=1.44 RISE=1 FROM=1n
+meas tran tfall TRIG V(q) VAL=1.44 FALL=1 TARG V(q) VAL=0.36 FALL=1 FROM=1n
+
+print trise tfall
+.endc
+.end

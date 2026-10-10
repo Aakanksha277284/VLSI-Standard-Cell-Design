@@ -1,0 +1,71 @@
+*Buffer (BUF_1X) - two-stage non-inverting buffer, sized to match INVX1 rise/fall
+
+.lib /foss/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+
+
+.subckt inv1 a vdd vss z
+xm01 z a vdd vdd sky130_fd_pr__pfet_01v8
++ l=0.15 w=1.25
++ as=0.375 ad=0.375
++ ps=3.1 pd=3.1
+
+xm02 z a vss vss sky130_fd_pr__nfet_01v8
++ l=0.15 w=0.42
++ as=0.126 ad=0.126
++ ps=1.44 pd=1.44
+.ends inv1
+
+.subckt buf a vdd vss z
+
+* Stage 1
+xm11 mid a vdd vdd sky130_fd_pr__pfet_01v8
++ l=0.15 w=1.42
++ as=0.426 ad=0.426
++ ps=3.44 pd=3.44
+
+xm12 mid a vss vss sky130_fd_pr__nfet_01v8
++ l=0.15 w=0.47
++ as=0.141 ad=0.141
++ ps=1.54 pd=1.54
+
+* Stage 2 (output stage, = INVX1 size)
+xm21 z mid vdd vdd sky130_fd_pr__pfet_01v8
++ l=0.15 w=1.42
++ as=0.426 ad=0.426
++ ps=3.44 pd=3.44
+
+xm22 z mid vss vss sky130_fd_pr__nfet_01v8
++ l=0.15 w=0.47
++ as=0.141 ad=0.141
++ ps=1.54 pd=1.54
+
+.ends buf
+
+* Testbench: BUF loaded with INVX1 (same fanout condition
+* used to characterize INVX1 in Assignment 1)
+
+Vdd vdd 0 DC 1.8
+Vin in 0 PULSE(0 1.8 0 20p 20p 1n 2n)
+
+XBUF1 in vdd 0 out buf
+XLOAD out vdd 0 output inv1
+
+.tran 1p 10n
+
+.control
+run
+plot V(in) V(out)
+
+meas tran trise TRIG v(out) VAL=0.36 RISE=1
++ TARG v(out) VAL=1.44 RISE=1
+
+meas tran tfall TRIG v(out) VAL=1.44 FALL=1
++ TARG v(out) VAL=0.36 FALL=1
+
+meas tran tphl TRIG v(in) VAL=0.9 RISE=1
++ TARG v(out) VAL=0.9 RISE=1
+
+meas tran tplh TRIG v(in) VAL=0.9 FALL=1
++ TARG v(out) VAL=0.9 FALL=1
+.endc
+.end

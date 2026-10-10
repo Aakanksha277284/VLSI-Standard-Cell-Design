@@ -1,0 +1,80 @@
+VERSION 5.7 ;
+  NOWIREEXTENSIONATPIN ON ;
+  DIVIDERCHAR "/" ;
+  BUSBITCHARS "[]" ;
+MACRO buf_new
+  CLASS BLOCK ;
+  FOREIGN buf_new ;
+  ORIGIN -2.610 0.600 ;
+  SIZE 5.980 BY 3.120 ;
+  PIN vdd
+    ANTENNADIFFAREA 1.562000 ;
+    PORT
+      LAYER nwell ;
+        RECT 2.880 0.880 4.940 1.950 ;
+        RECT 6.340 0.880 8.400 1.950 ;
+      LAYER li1 ;
+        RECT 2.900 2.110 8.380 2.450 ;
+        RECT 3.210 1.770 3.380 2.110 ;
+        RECT 3.610 1.770 3.780 2.110 ;
+        RECT 4.530 1.770 4.700 2.110 ;
+        RECT 6.670 1.770 6.840 2.110 ;
+        RECT 7.070 1.770 7.240 2.110 ;
+        RECT 7.990 1.770 8.160 2.110 ;
+        RECT 3.060 1.060 3.860 1.770 ;
+        RECT 4.490 1.060 4.760 1.770 ;
+        RECT 6.520 1.060 7.320 1.770 ;
+        RECT 7.950 1.060 8.220 1.770 ;
+      LAYER met1 ;
+        RECT 2.880 2.100 8.410 2.520 ;
+        RECT 2.880 1.770 4.950 2.100 ;
+        RECT 6.340 1.770 8.410 2.100 ;
+    END
+  END vdd
+  PIN a
+    ANTENNAGATEAREA 0.283500 ;
+    PORT
+      LAYER li1 ;
+        RECT 2.610 0.540 2.960 0.840 ;
+    END
+  END a
+  PIN z
+    ANTENNADIFFAREA 0.354000 ;
+    PORT
+      LAYER li1 ;
+        RECT 7.500 1.060 7.750 1.770 ;
+        RECT 7.520 0.840 7.720 1.060 ;
+        RECT 7.520 0.650 8.590 0.840 ;
+        RECT 7.520 0.460 7.720 0.650 ;
+        RECT 7.490 -0.010 7.770 0.460 ;
+    END
+  END z
+  PIN vss
+    ANTENNADIFFAREA 0.686200 ;
+    PORT
+      LAYER li1 ;
+        RECT 3.130 -0.010 3.860 0.460 ;
+        RECT 6.590 -0.010 7.320 0.460 ;
+        RECT 3.200 -0.350 3.400 -0.010 ;
+        RECT 3.630 -0.350 3.800 -0.010 ;
+        RECT 6.660 -0.350 6.860 -0.010 ;
+        RECT 7.090 -0.350 7.260 -0.010 ;
+        RECT 3.100 -0.570 7.850 -0.350 ;
+      LAYER met1 ;
+        RECT 3.060 -0.300 4.410 -0.010 ;
+        RECT 6.520 -0.300 7.870 -0.010 ;
+        RECT 3.060 -0.600 7.870 -0.300 ;
+    END
+  END vss
+  OBS
+      LAYER li1 ;
+        RECT 4.040 1.060 4.290 1.770 ;
+        RECT 4.060 0.840 4.260 1.060 ;
+        RECT 4.060 0.650 6.420 0.840 ;
+        RECT 4.060 0.460 4.260 0.650 ;
+        RECT 6.070 0.540 6.420 0.650 ;
+        RECT 4.030 -0.010 4.310 0.460 ;
+  END
+END buf_new
+END LIBRARY
+

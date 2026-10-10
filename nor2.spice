@@ -1,0 +1,53 @@
+*NOR Gate Simulation
+.lib /foss/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+
+.param l=0.15
+
+* Inverter sizes
+.param inv_wp=1.25
+.param inv_wn=0.42
+
+* NOR sizes
+.param nor_wp=6
+.param nor_wn=1.5
+
+* Inverter ckt-
+.subckt INVX1 A VDD VSS Z
+xm01 Z A VDD VDD sky130_fd_pr__pfet_01v8 l={l} w={inv_wp} as={inv_wp*2*l} ad={inv_wp*2*l} ps={2*(inv_wp+(2*l))} pd={2*(inv_wp+(2*l))}
+xm02 Z A VSS VSS sky130_fd_pr__nfet_01v8 l={l} w={inv_wn} as={inv_wn*2*l} ad={inv_wn*2*l} ps={2*(inv_wn+(2*l))} pd={2*(inv_wn+(2*l))}
+.ends INVX1
+
+* NOR ckt-
+.subckt NOR2 A B VDD VSS Z
+xm01 NINT A VDD VDD sky130_fd_pr__pfet_01v8 l={l} w={nor_wp} as={nor_wp*2*l} ad={nor_wp*2*l} ps={2*(nor_wp+(2*l))} pd={2*(nor_wp+(2*l))}
+xm02 Z B NINT VDD sky130_fd_pr__pfet_01v8 l={l} w={nor_wp} as={nor_wp*2*l} ad={nor_wp*2*l} ps={2*(nor_wp+(2*l))} pd={2*(nor_wp+(2*l))}
+xm03 Z A VSS VSS sky130_fd_pr__nfet_01v8 l={l} w={nor_wn} as={nor_wn*2*l} ad={nor_wn*2*l} ps={2*(nor_wn+(2*l))} pd={2*(nor_wn+(2*l))}
+xm04 Z B VSS VSS sky130_fd_pr__nfet_01v8 l={l} w={nor_wn} as={nor_wn*2*l} ad={nor_wn*2*l} ps={2*(nor_wn+(2*l))} pd={2*(nor_wn+(2*l))}
+.ends NOR2
+
+
+VDD vdd 0 DC 1.8
+VinA A 0 PULSE(0 1.8 0 20p 20p 1n 2n)
+VinB B 0 DC 0
+
+
+XNOR A B vdd 0 Z NOR2
+XLOAD Z vdd 0 out2 INVX1
+
+.tran 1p 4n
+
+.control
+run
+
+plot V(A) V(B) V(Z)
+
+meas tran trise trig V(Z) val=0.36 rise=1 targ V(Z) val=1.44 rise=1
+meas tran tfall trig V(Z) val=1.44 fall=1 targ V(Z) val=0.36 fall=1
+meas tran tpLH trig V(A) val=0.9 fall=1 targ V(Z) val=0.9 rise=1
+meas tran tpHL trig V(A) val=0.9 rise=1 targ V(Z) val=0.9 fall=1
+
+let tp=(tpLH+tpHL)/2
+print trise tfall tpLH tpHL tp
+
+.endc
+.end
